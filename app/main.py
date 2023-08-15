@@ -1,10 +1,18 @@
 # Uncomment this to pass the first stage
 import socket
 import threading
+from datetime import datetime, timedelta
+from dataclasses import dataclass
 
 db = dict()
 
 ERROR = 'args err'
+
+@dataclass
+class Value:
+    content: str
+    expiry: datetime | None = None    
+
 
 def handle_ping(args):
     return "PONG"
@@ -15,14 +23,27 @@ def handle_echo(args):
 
 
 def handle_set(args):
-    if len(args) != 2:
+    if len(args) == 2:
+        db[args[0]] = Value(content=args[1])
+    elif len(args) == 4 and args[2].lower() == 'px':
+        db[args[0]] = Value(content=args[1], expiry=datetime.now()+timedelta(milliseconds=int(args[3])))
+    else:
         return ERROR
 
-    db[args[0]] = args[1]
     return "OK"
 
+
 def handle_get(args):
-    return db[args[0]]
+    value: Value = db.get(args[0])
+    
+    if value:
+        if value.expiry:
+            if datetime.now() < value.expiry:
+                return value.content
+        else:
+            return value.content
+
+    return None
 
 commands = {
     'command': handle_ping,
@@ -37,7 +58,11 @@ def handle_command(command, args):
     command_func = commands[command.lower()]
     output = command_func(args)
 
-    formatted_output = "+%s\r\n" % (output)
+    if output is None:
+        formatted_output = '$-1\r\n'
+    else:
+        formatted_output = "+%s\r\n" % (output)
+    
     return formatted_output
 
 
