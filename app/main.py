@@ -19,7 +19,7 @@ def handle_set(args):
         return ERROR
 
     db[args[0]] = args[1]
-    return "SET"
+    return "OK"
 
 def handle_get(args):
     return db[args[0]]
