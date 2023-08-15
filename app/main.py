@@ -1,6 +1,7 @@
 # Uncomment this to pass the first stage
 import socket
 
+PONG = "+PONG\r\n"
 
 def main():
     # You can use print statements as follows for debugging, they'll be visible when running tests.
@@ -11,8 +12,11 @@ def main():
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
     conn, _ = server_socket.accept()  # wait for client
     with conn:
-        conn.recv(1024)
-        conn.send("+PONG\r\n".encode())
+        while True:
+            message = conn.recv(1024)
+            if not message:
+                break
+            conn.send(PONG.encode())
 
 if __name__ == "__main__":
     main()
