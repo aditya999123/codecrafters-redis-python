@@ -26,7 +26,7 @@ def main():
 
     while True:
         conn, _ = server_socket.accept()  # wait for client
-        t = threading.Thread(target=handle_conn, args=(conn))
+        t = threading.Thread(target=handle_conn, args=(conn,))
         threads.append(t)
 
         t.start()
