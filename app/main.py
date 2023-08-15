@@ -2,27 +2,27 @@
 import socket
 import threading
 
-PONG = "+PONG\r\n"
-
 
 def handle_ping(args):
-    return PONG
+    return "PONG"
 
 
 def handle_echo(args):
-    return args[1]
+    return args[0]
 
 commands = {
+    'command': handle_ping,
     'ping': handle_ping,
     'echo': handle_echo
 }
 
 
 def handle_command(command, args):
-    command_func = commands[command]
-    r = command_func(args)
+    command_func = commands[command.lower()]
+    output = command_func(args)
 
-    return r
+    formatted_output = "+%s\r\n" % (output)
+    return formatted_output
 
 
 def handle_conn(conn):
