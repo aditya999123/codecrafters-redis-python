@@ -12,6 +12,7 @@ def handle_conn(conn):
             message = conn.recv(1024)
             if not message:
                 break
+            print("this is the message %s" %(message))
             conn.send(PONG.encode())
 
 
