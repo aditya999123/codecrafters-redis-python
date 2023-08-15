@@ -2,6 +2,9 @@
 import socket
 import threading
 
+db = dict()
+
+ERROR = 'args err'
 
 def handle_ping(args):
     return "PONG"
@@ -10,10 +13,23 @@ def handle_ping(args):
 def handle_echo(args):
     return args[0]
 
+
+def handle_set(args):
+    if len(args) != 2:
+        return ERROR
+
+    db[args[0]] = args[1]
+    return "SET"
+
+def handle_get(args):
+    return db[args[0]]
+
 commands = {
     'command': handle_ping,
     'ping': handle_ping,
-    'echo': handle_echo
+    'echo': handle_echo,
+    'set': handle_set,
+    'get': handle_get
 }
 
 
