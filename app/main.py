@@ -5,6 +5,25 @@ import threading
 PONG = "+PONG\r\n"
 
 
+def handle_ping(args):
+    return PONG
+
+
+def handle_echo(args):
+    return args[1]
+
+commands = {
+    'ping': handle_ping,
+    'echo': handle_echo
+}
+
+
+def handle_command(command, args):
+    command_func = commands[command]
+    r = command_func(args)
+
+    return r
+
 
 def handle_conn(conn):
     with conn:
@@ -12,8 +31,17 @@ def handle_conn(conn):
             message = conn.recv(1024)
             if not message:
                 break
-            print("this is the message %s" %(message.decode()))
-            conn.send(PONG.encode())
+
+            command_args = message.decode().rstrip('\r\n').split('\r\n')
+            command = command_args[2]
+
+            args = []
+            for i in range(4, len(command_args), 2):
+                args.append(command_args[i])
+
+            r = handle_command(command, args)
+
+            conn.send(r.encode())
 
 
 def main():
