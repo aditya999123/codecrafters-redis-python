@@ -1,4 +1,4 @@
-# Uncomment this to pass the first stage
+import asyncio
 import socket
 from datetime import datetime, timedelta
 from dataclasses import dataclass
@@ -65,13 +65,11 @@ def handle_command(command, args):
     return formatted_output
 
 
-def handle_conn(conn):
-    with conn:
-        # while True:
-        message = conn.recv(1024)
+async def handle_conn(reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+    while True:
+        message = await reader.read(1024)
         if not message:
-            # break
-            return
+            break
 
         command_args = message.decode().rstrip('\r\n').split('\r\n')
         command = command_args[2]
@@ -82,23 +80,16 @@ def handle_conn(conn):
 
         r = handle_command(command, args)
 
-        conn.send(r.encode())
+        await writer.write(r.encode())
+        await writer.drain()
 
 
-def main():
-    # You can use print statements as follows for debugging, they'll be visible when running tests.
-    print("Logs from your program will appear here!")
-
-    # Uncomment this to pass the first stage
-
-    server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
-
-    # threads = []
-    while True:
-        conn, _ = server_socket.accept()  # wait for client
-        handle_conn(conn=conn)
-
+async def main():
+    server = await asyncio.start_server(handle_conn, "localhost", 6379)
+    async with server:
+        await server.serve_forever()
+        print(f"Shutting down")
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())
