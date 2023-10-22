@@ -79,10 +79,13 @@ async def handle_conn(reader: asyncio.StreamReader, writer: asyncio.StreamWriter
             args.append(command_args[i])
 
         r = handle_command(command, args)
+        if r and writer:
+            writer.write(r.encode())
+            await writer.drain()
 
-        await writer.write(r.encode())
-        await writer.drain()
-
+    print("Closing connection...")
+    writer.close()
+    await writer.wait_closed()
 
 async def main():
     server = await asyncio.start_server(handle_conn, "localhost", 6379)
