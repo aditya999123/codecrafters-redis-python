@@ -1,6 +1,5 @@
 # Uncomment this to pass the first stage
 import socket
-import threading
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 
@@ -68,21 +67,22 @@ def handle_command(command, args):
 
 def handle_conn(conn):
     with conn:
-        while True:
-            message = conn.recv(1024)
-            if not message:
-                break
+        # while True:
+        message = conn.recv(1024)
+        if not message:
+            # break
+            return
 
-            command_args = message.decode().rstrip('\r\n').split('\r\n')
-            command = command_args[2]
+        command_args = message.decode().rstrip('\r\n').split('\r\n')
+        command = command_args[2]
 
-            args = []
-            for i in range(4, len(command_args), 2):
-                args.append(command_args[i])
+        args = []
+        for i in range(4, len(command_args), 2):
+            args.append(command_args[i])
 
-            r = handle_command(command, args)
+        r = handle_command(command, args)
 
-            conn.send(r.encode())
+        conn.send(r.encode())
 
 
 def main():
@@ -92,14 +92,12 @@ def main():
     # Uncomment this to pass the first stage
 
     server_socket = socket.create_server(("localhost", 6379), reuse_port=True)
-    threads = []
 
+    # threads = []
     while True:
         conn, _ = server_socket.accept()  # wait for client
-        t = threading.Thread(target=handle_conn, args=(conn,))
-        threads.append(t)
+        handle_conn(conn=conn)
 
-        t.start()
 
 
 if __name__ == "__main__":
