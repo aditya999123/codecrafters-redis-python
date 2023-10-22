@@ -17,7 +17,7 @@ class RedisServer:
 
     def handle_config(self, args):
         if args[0].lower() == 'get':
-            return self.config.get(args[1])        
+            return [args[1], self.config.get(args[1])]        
 
     def handle_ping(self, args):
         return "PONG"
@@ -66,6 +66,11 @@ class RedisServer:
 
         if output is None:
             formatted_output = '$-1\r\n'
+        elif isinstance(output, list):
+            formatted_output = '*%s\r\n'%(len(output))
+            for o in output:
+                formatted_output += '$%s\r\n'%(len(o))
+                formatted_output += '%s\r\n'%(o)
         else:
             formatted_output = "+%s\r\n" % (output)
         
