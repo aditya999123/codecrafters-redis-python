@@ -2,7 +2,7 @@ import sys
 import asyncio
 from datetime import datetime, timedelta
 from dataclasses import dataclass
-
+from rdbtools3 import parse_rdb_stream
 
 ERROR = 'args err'
 
@@ -25,6 +25,11 @@ class RedisServer:
 
     def handle_echo(self, args):
         return args[0]
+
+
+    def handle_keys(self, args):
+        if args[0] == '*':
+            return self.db.keys()
 
 
     def handle_set(self, args):
@@ -57,7 +62,8 @@ class RedisServer:
             'echo': self.handle_echo,
             'set': self.handle_set,
             'get': self.handle_get,
-            'config': self.handle_config
+            'config': self.handle_config,
+            'keys': self.handle_keys
         }
 
 
@@ -115,6 +121,16 @@ class RedisServer:
             else:
                 pass
 
+        if self.config.get('dir') and self.config.get('dbfilename'):
+            self.db = self.load_rdb_file()
+
+    def load_rdb_file(self):
+        dir = self.config.get('dir')
+        dbfilename = self.config.get('dbfilename')
+
+        with open(f'{dir}/{dbfilename}', 'rb') as dbfile:
+            for item in parse_rdb_stream(dbfile):
+                self.db[item.key] = item.value
 
 if __name__ == "__main__":
     redis_server = RedisServer(sys.argv)
