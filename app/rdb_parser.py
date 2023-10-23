@@ -47,7 +47,7 @@ class RDBParser:
         return r, last_byte_i
     
     def __get_time(self, start_i, end_i):
-        r = int.from_bytes(self.rdb_data[start_i: end_i+1])
+        r = int.from_bytes(self.rdb_data[start_i: end_i+1], byteorder='little')
         return r, end_i
 
     def __read_key_val(self, start_byte_i):
@@ -60,18 +60,13 @@ class RDBParser:
 
             if cur_byte.to_bytes() == b'\xfd':
                 exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+3)
-                exp_time = datetime.fromtimestamp(exp_time/1000)
             elif cur_byte.to_bytes() == b'\xfc':
                 exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+7)
-                exp_time = datetime.fromtimestamp(exp_time/1000000)
+                exp_time = exp_time/1000
             else:
                 exp_time = None
 
             if exp_time:
-                
-                if datetime.now() > exp_time:
-                    exp_time = None
-
                 value_type = self.rdb_data[cursor_i+1]
                 cursor_i += 1
             else:
@@ -99,6 +94,8 @@ class RDBParser:
     def parse(self) -> dict:
         assert self.rdb_data
         assert self.rdb_data.startswith(b'REDIS')
+
+        # print(self.rdb_data)
 
         db_resize_i = self.rdb_data.find(b'\xfb')
         db_hash_table_len, last_byte_read_i = self.__read_len_encoded_int(db_resize_i+1)
