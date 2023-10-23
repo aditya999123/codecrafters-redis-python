@@ -1,3 +1,4 @@
+import os
 import sys
 import asyncio
 from datetime import datetime, timedelta
@@ -129,11 +130,13 @@ class RedisServer:
         dir = self.config.get('dir')
         dbfilename = self.config.get('dbfilename')
 
-        with open(f'{dir}/{dbfilename}', 'rb') as dbfile:
-            rdb_data = dbfile.read()
+        full_file_path = f'{dir}/{dbfilename}'
+        if os.exists(full_file_path):
+            with open(full_file_path, 'rb') as dbfile:
+                rdb_data = dbfile.read()
 
-        rdb_parser = RDBParser(rdb_data=rdb_data)
-        self.db = rdb_parser.parse()
+            rdb_parser = RDBParser(rdb_data=rdb_data)
+            self.db = rdb_parser.parse()
 
 if __name__ == "__main__":
     redis_server = RedisServer(sys.argv)
