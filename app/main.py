@@ -139,7 +139,7 @@ class RedisServer:
 
             if key in re_dict:
                 print(re_dict[key])
-                r[key] = Value(content=val, expiry=datetime.fromtimestamp(re_dict[key]))
+                r[key] = Value(content=val, expiry=re_dict[key])
             else:
                 r[key] = Value(content=val)
 

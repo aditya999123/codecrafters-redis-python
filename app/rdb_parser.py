@@ -1,3 +1,4 @@
+from datetime import datetime
 class RDBParser:
     rdb_data: str = None
 
@@ -59,13 +60,18 @@ class RDBParser:
 
             if cur_byte.to_bytes() == b'\xfd':
                 exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+3)
+                exp_time = datetime.fromtimestamp(exp_time)
             elif cur_byte.to_bytes() == b'\xfc':
                 exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+7)
-                exp_time = exp_time/1000
+                exp_time = datetime.fromtimestamp(exp_time/1000)
             else:
                 exp_time = None
 
             if exp_time:
+                
+                if datetime.now() > exp_time:
+                    exp_time = None
+
                 value_type = self.rdb_data[cursor_i+1]
                 cursor_i += 1
             else:
