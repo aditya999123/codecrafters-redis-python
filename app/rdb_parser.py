@@ -68,7 +68,11 @@ class RDBParser:
             else:
                 exp_time = None
 
-            value_type_byte = cur_byte
+            if not exp_time:
+                value_type_byte = cur_byte
+            else:
+                value_type_byte = self.rdb_data[cursor_i+1]
+                cursor_i += 1
 
             if value_type_byte != 0:
                 raise NotImplementedError
