@@ -138,6 +138,7 @@ class RedisServer:
         for key, val in r_dict.items():        
 
             if key in re_dict:
+                print(re_dict[key])
                 r[key] = Value(content=val, expiry=datetime.fromtimestamp(re_dict[key]))
             else:
                 r[key] = Value(content=val)
