@@ -31,7 +31,7 @@ class RedisServer:
 
     def handle_keys(self, args):
         if args[0] == '*':
-            return self.db.keys()
+            return list(self.db.keys())
 
 
     def handle_set(self, args):
@@ -115,6 +115,8 @@ class RedisServer:
 
 
     def __init__(self, sys_args) -> None:
+        self.db = {}
+
         for i, arg in enumerate(sys_args):
             if arg == '--dir':
                 self.config['dir'] = sys_args[i+1]
@@ -123,20 +125,20 @@ class RedisServer:
             else:
                 pass
 
-        if self.config.get('dir') and self.config.get('dbfilename'):
-            self.db = self.load_rdb_file()
-
-    def load_rdb_file(self):
         dir = self.config.get('dir')
         dbfilename = self.config.get('dbfilename')
 
         full_file_path = f'{dir}/{dbfilename}'
         if os.path.exists(full_file_path):
-            with open(full_file_path, 'rb') as dbfile:
-                rdb_data = dbfile.read()
+            self.db = self.load_rdb_file(full_file_path)
 
-            rdb_parser = RDBParser(rdb_data=rdb_data)
-            self.db = rdb_parser.parse()
+
+    def load_rdb_file(self, full_file_path):
+        with open(full_file_path, 'rb') as dbfile:
+            rdb_data = dbfile.read()
+
+        rdb_parser = RDBParser(rdb_data=rdb_data)
+        return rdb_parser.parse()
 
 if __name__ == "__main__":
     redis_server = RedisServer(sys.argv)
