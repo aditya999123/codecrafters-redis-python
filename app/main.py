@@ -130,13 +130,17 @@ class RedisServer:
 
         full_file_path = f'{dir}/{dbfilename}'
         if os.path.exists(full_file_path):
-            r_dict = self.load_rdb_file(full_file_path)
-            self.db = self.__load_from_dict(r_dict)
+            r_dict, re_dict = self.load_rdb_file(full_file_path)
+            self.db = self.__load_from_dict(r_dict, re_dict)
 
-    def __load_from_dict(self, r_dict):
+    def __load_from_dict(self, r_dict, re_dict):
         r = {}
         for key, val in r_dict.items():        
-            r[key] = Value(content=val)
+
+            if key in re_dict:
+                r[key] = Value(content=val, expiry=datetime.fromtimestamp(re_dict[key]))
+            else:
+                r[key] = Value(content=val)
 
         return r
 

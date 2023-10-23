@@ -45,16 +45,29 @@ class RDBParser:
 
         return r, last_byte_i
     
+    def __get_time(self, start_i, end_i):
+        bin = ''
+
+        for i in range(start_i, end_i+1):
+            bin += self.__byte_to_bin(self.rdb_data[i])
+
+        return int(bin, 2), end_i
+
     def __read_key_val(self, start_byte_i):
         r = {}
+        re = {}
 
         cursor_i = start_byte_i
         while self.rdb_data[cursor_i].to_bytes() != b'\xff':
             cur_byte = self.rdb_data[cursor_i]
 
-            if cur_byte.to_bytes() == b'\xfd' or cur_byte.to_bytes() == b'\xfc':
-                raise NotImplementedError()
-            
+            if cur_byte.to_bytes() == b'\xfd':
+                exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+4)
+            elif cur_byte.to_bytes() == b'\xfc':
+                exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+8)
+            else:
+                exp_time = None
+
             value_type_byte = cur_byte
 
             if value_type_byte != 0:
@@ -68,9 +81,12 @@ class RDBParser:
                 val, cursor_i = self.__read_str(cursor_i+1, cursor_i+slen)
 
             r[key] = val
+            if exp_time:
+                re[key] = exp_time
+
             cursor_i += 1
 
-        return r
+        return r, re
 
 
     def parse(self) -> dict:
@@ -83,6 +99,6 @@ class RDBParser:
 
         # print(db_hash_table_len, db_expiry_table_len)
 
-        r_dict = self.__read_key_val(last_byte_read_i+1)
+        r_dict, re_dict = self.__read_key_val(last_byte_read_i+1)
         # print('r_dict', r_dict)
-        return r_dict
+        return r_dict, re_dict
