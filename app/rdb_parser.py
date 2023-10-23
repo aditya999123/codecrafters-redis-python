@@ -68,19 +68,20 @@ class RDBParser:
             else:
                 exp_time = None
 
-            if not exp_time:
-                value_type_byte = cur_byte
-            else:
-                value_type_byte = self.rdb_data[cursor_i+1]
+            if exp_time:
+                value_type = self.rdb_data[cursor_i+1]
                 cursor_i += 1
+            else:
+                value_type = cur_byte
 
-            if value_type_byte != 0:
+            if value_type != 0:
+                print(value_type, value_type.to_bytes())
                 raise NotImplementedError
 
             slen, cursor_i = self.__read_len_encoded_int(cursor_i + 1)
             key, cursor_i = self.__read_str(cursor_i+1, cursor_i+slen)
 
-            if value_type_byte == 0:
+            if value_type == 0:
                 slen, cursor_i = self.__read_len_encoded_int(cursor_i + 1)     
                 val, cursor_i = self.__read_str(cursor_i+1, cursor_i+slen)
 
