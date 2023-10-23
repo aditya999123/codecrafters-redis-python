@@ -62,9 +62,9 @@ class RDBParser:
             cur_byte = self.rdb_data[cursor_i]
 
             if cur_byte.to_bytes() == b'\xfd':
-                exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+4)
+                exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+3)
             elif cur_byte.to_bytes() == b'\xfc':
-                exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+8)
+                exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+7)
             else:
                 exp_time = None
 
