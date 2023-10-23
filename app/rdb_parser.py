@@ -81,6 +81,8 @@ class RDBParser:
         db_hash_table_len, last_byte_read_i = self.__read_len_encoded_int(db_resize_i+1)
         db_expiry_table_len, last_byte_read_i = self.__read_len_encoded_int(last_byte_read_i+1)
 
+        # print(db_hash_table_len, db_expiry_table_len)
+
         r_dict = self.__read_key_val(last_byte_read_i+1)
         # print('r_dict', r_dict)
         return r_dict
