@@ -49,7 +49,7 @@ class RedisServer:
         value: Value = self.db.get(args[0])
         
         if value:
-            if value.expiry:
+            if getattr(value, 'expiry'):
                 if datetime.now() < value.expiry:
                     return value.content
             else:
