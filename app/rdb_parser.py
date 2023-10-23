@@ -63,7 +63,7 @@ class RDBParser:
                 exp_time = datetime.fromtimestamp(exp_time)
             elif cur_byte.to_bytes() == b'\xfc':
                 exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+7)
-                exp_time = datetime.fromtimestamp(exp_time/1000)
+                exp_time = datetime.fromtimestamp(exp_time/1000000)
             else:
                 exp_time = None
 
