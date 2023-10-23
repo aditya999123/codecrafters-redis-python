@@ -131,7 +131,7 @@ class RedisServer:
         dbfilename = self.config.get('dbfilename')
 
         full_file_path = f'{dir}/{dbfilename}'
-        if os.exists(full_file_path):
+        if os.path.exists(full_file_path):
             with open(full_file_path, 'rb') as dbfile:
                 rdb_data = dbfile.read()
 
