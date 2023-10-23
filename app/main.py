@@ -130,8 +130,15 @@ class RedisServer:
 
         full_file_path = f'{dir}/{dbfilename}'
         if os.path.exists(full_file_path):
-            self.db = self.load_rdb_file(full_file_path)
+            r_dict = self.load_rdb_file(full_file_path)
+            self.db = self.__load_from_dict(r_dict)
 
+    def __load_from_dict(self, r_dict):
+        r = {}
+        for key, val in r_dict.items():        
+            r[key] = Value(content=val)
+
+        return r
 
     def load_rdb_file(self, full_file_path):
         with open(full_file_path, 'rb') as dbfile:
