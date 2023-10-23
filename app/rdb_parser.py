@@ -46,12 +46,8 @@ class RDBParser:
         return r, last_byte_i
     
     def __get_time(self, start_i, end_i):
-        bin = ''
-
-        for i in range(start_i, end_i+1):
-            bin += self.__byte_to_bin(self.rdb_data[i])
-
-        return int(bin, 2), end_i
+        r = int.from_bytes(self.rdb_data[start_i: end_i+1])
+        return r, end_i
 
     def __read_key_val(self, start_byte_i):
         r = {}
