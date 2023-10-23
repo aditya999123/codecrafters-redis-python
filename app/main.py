@@ -2,7 +2,8 @@ import sys
 import asyncio
 from datetime import datetime, timedelta
 from dataclasses import dataclass
-from rdbtools3 import parse_rdb_stream
+
+from .rdb_parser import RDBParser
 
 ERROR = 'args err'
 
@@ -129,8 +130,10 @@ class RedisServer:
         dbfilename = self.config.get('dbfilename')
 
         with open(f'{dir}/{dbfilename}', 'rb') as dbfile:
-            for item in parse_rdb_stream(dbfile):
-                self.db[item.key] = item.value
+            rdb_data = dbfile.read()
+
+        rdb_parser = RDBParser(rdb_data=rdb_data)
+        self.db = rdb_parser.parse()
 
 if __name__ == "__main__":
     redis_server = RedisServer(sys.argv)
