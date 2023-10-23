@@ -65,6 +65,7 @@ class RDBParser:
                 exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+3)
             elif cur_byte.to_bytes() == b'\xfc':
                 exp_time, cursor_i = self.__get_time(cursor_i+1, cursor_i+1+7)
+                exp_time = exp_time/1000
             else:
                 exp_time = None
 
@@ -75,7 +76,6 @@ class RDBParser:
                 value_type = cur_byte
 
             if value_type != 0:
-                print(value_type, value_type.to_bytes())
                 raise NotImplementedError
 
             slen, cursor_i = self.__read_len_encoded_int(cursor_i + 1)
